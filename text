@@ -7,3 +7,7 @@
 Labele le plus présent est AUTHOR
 
 3.
+nombre moyen de d'articles publiés par auteur : match (n)-[q:AUTHOR]->(r) with r.name as g,count(n) as t return avg(t)
+nombre max de publicationsl: match (n)-[q:AUTHOR]->(r) with r.name as g,count(n) as t return max(t)  
+
+resultat -> 
