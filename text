@@ -4,4 +4,6 @@
     match p = (n)-[:VENUE]->(m) RETURN count(p) -> 51956 
     match p = (n)-[:AUTHOR]->(m) RETURN count(p) -> 140575
 
-Labele le plus présent est VENUE
+Labele le plus présent est AUTHOR
+
+3.
