@@ -11,3 +11,23 @@ nombre moyen de d'articles publiés par auteur : match (n)-[q:AUTHOR]->(r) with 
 nombre max de publicationsl: match (n)-[q:AUTHOR]->(r) with r.name as g,count(n) as t return max(t)  
 
 resultat -> 
+
+4. 
+l'auteur qui a publié le plus :
+match (n)-[q:AUTHOR]->(r) 
+with r.name as nam,count(n) as ct 
+with apoc.agg.maxItems(nam,ct) as maxData 
+RETURN maxData.items, maxData.value
+
+réponse : Peter G. Neumann avec 89 ouvrages
+
+5. 
+année pendant laquelle le plus de publications ont été proposées :
+match (n:Article) 
+with n.year as date,count(n) as ct 
+with apoc.agg.maxItems(date,ct) as maxdata 
+return maxdata.items, maxdata.value
+
+réponse : année 2006 avec 7536 publications
+
+6. 
