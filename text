@@ -30,4 +30,14 @@ return maxdata.items, maxdata.value
 
 réponse : année 2006 avec 7536 publications
 
-6. 
+6. liste des publications de brian fitzgerarld
+match (n)-[q:AUTHOR]->(r) where r.name = "Brian Fitzgerald" return n
+(la suite je ne sais pas encore...)
+
+7. repose sur 6
+
+8. 
+CALL gds.graph.create('graph2','Article',{ CITED: { orientation: 'UNDIRECTED'}})
+CALL gds.pageRank.write('graph2', {writeProperty: 'pageRank'})
+
+9. 
