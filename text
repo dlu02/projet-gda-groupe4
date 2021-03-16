@@ -41,3 +41,9 @@ CALL gds.graph.create('graph2','Article',{ CITED: { orientation: 'UNDIRECTED'}})
 CALL gds.pageRank.write('graph2', {writeProperty: 'pageRank'})
 
 9. 
+CALL gds.pageRank.stream('graph2') YIELD nodeId, score
+RETURN gds.util.asNode(nodeId).name AS name, score
+ORDER BY score DESC LIMIT 10
+
+10. (pas bon pour l'instant)
+CALL db.index.fulltext.queryNodes("articles", "open source") YIELD node RETURN [(author)<-[:AUTHOR]-(node) | author.name],size([(author)<-[:AUTHOR]-(node) | node.title]) LIMIT 10 
