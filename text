@@ -45,5 +45,18 @@ CALL gds.pageRank.stream('graph2') YIELD nodeId, score
 RETURN gds.util.asNode(nodeId).name AS name, score
 ORDER BY score DESC LIMIT 10
 
-10. (pas bon pour l'instant)
-CALL db.index.fulltext.queryNodes("articles", "open source") YIELD node RETURN [(author)<-[:AUTHOR]-(node) | author.name],size([(author)<-[:AUTHOR]-(node) | node.title]) LIMIT 10 
+10. 
+CALL db.index.fulltext.queryNodes("articles", "open source") YIELD node 
+WITH [(author)<-[:AUTHOR]-(node) | author.name] as tab 
+UNWIND tab as t 
+WITH collect(t) as list 
+WITH apoc.coll.frequencies(list) AS res 
+RETURN apoc.coll.sortMaps(res,"count")
+
+réponse : Denys Poshyvanyk avec 16 publications
+
+11.
+create index on :Authors(name)
+
+12. (idée de départ) 
+MATCH (n)-[q:AUTHOR]->(r),(m)-[p:AUTHOR]->(s) WHERE n.title = m.title RETURN [n.title,[r.name,s.name]] limit 60
