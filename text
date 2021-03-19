@@ -61,6 +61,10 @@ create index on :Authors(name)
 12. (idée de départ) 
 MATCH (n)-[q:AUTHOR]->(r),(m)-[p:AUTHOR]->(s) WHERE n.title = m.title RETURN [n.title,[r.name,s.name]] limit 60
 
-créer la relation entre deux auteurs qui ont collaboré sur au moins un article (requête très lente...)
+créer la relation entre deux auteurs qui ont collaboré sur au moins un article (requête très lente et ca doit pas etre ca...)
 MATCH (n)-[q:AUTHOR]->(r),(m)-[p:AUTHOR]->(s) WHERE n.title = m.title CREATE UNIQUE (r)-[t:CO_AUTHOR]->(s) RETURN type(t)
 
+
+13. repose sur 12.
+
+14. 
