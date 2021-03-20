@@ -4,7 +4,7 @@
     match p = (n)-[:VENUE]->(m) RETURN count(p) -> 51956 
     match p = (n)-[:AUTHOR]->(m) RETURN count(p) -> 140575
 
-Labele le plus présent est AUTHOR
+Le Labele le plus présent est AUTHOR
 
 3.
 nombre moyen de d'articles publiés par auteur : match (n)-[q:AUTHOR]->(r) with r.name as g,count(n) as t return avg(t)
