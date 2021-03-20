@@ -28,9 +28,15 @@ return maxdata.items, maxdata.value
 
 réponse : année 2006 avec 7536 publications
 
-6. liste des publications de brian fitzgerarld
-match (n)-[q:AUTHOR]->(r) where r.name = "Brian Fitzgerald" return n
-(la suite je ne sais pas encore...)
+6. 
+idée : chercher les co-auteurs de B.F. puis chercher les co-auteurs de ces co-auteurs qui ne sont pas B.F.
+(ne marche toujours pas...)
+match (t)<-[s:AUTHOR]-(n)-[q:AUTHOR]->(r) 
+where r.name = "Brian Fitzgerald" 
+with collect(t.name) as l 
+match (a)<-[b:AUTHOR]-(c)-[d:AUTHOR]->(e) 
+where e in l and a.name <> "Brian Fitzgerald" 
+return collect(a.name)
 
 7. repose sur 6
 
@@ -92,8 +98,7 @@ CALL gds.alpha.scc.write('whole-graph', {relationshipTypes: ['CITED'], writeProp
 YIELD setCount, maxSetSize, minSetSize
 
 16. 
-liste des composantes connexes et leur nombre de noeuds respectif
-match (n:Article) return n.componentId,count(n.componentId) ORDER BY count(n.componentId) DESC
+match (n:Article) return n.componentId,count(n.componentId),collect(n.title) ORDER BY count(n.componentId) DESC
 
 17.
 les 3 composantes avec le plus de noeuds
@@ -103,3 +108,18 @@ visualisation :
 match (n:Article) WHERE n.componentId in [47355,7097,14935] return n
 
 18.
+MATCH (n:Article)-[:AUTHOR]->(a:Author) return n.componentId,sum(size([(a)<-[:AUTHOR]-(s) | s.title]))*1.0/count(n.componentId)
+
+19. 
+MATCH (n:Article)-[:AUTHOR]->(a:Author) return n.componentId,sum(size([(a)<-[:AUTHOR]-(s) | s.title]))*1.0/count(n.componentId) as densite ORDER BY densite DESC LIMIT 3
+
+20. 
+ajouter la propriété weight = 1
+match (a)-[t:CO_AUTHOR]->(b) SET t.weight=1 return type(t)
+
+appel de l'algorithme Louvain
+CALL gds.louvain.stream('whole-graph', { relationshipTypes: ['CO_AUTHOR'] }) 
+YIELD nodeId, communityId, intermediateCommunityIds
+RETURN collect(gds.util.asNode(nodeId).name) AS name, communityId
+ORDER BY size(name) DESC
+
