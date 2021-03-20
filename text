@@ -10,7 +10,7 @@ Le Labele le plus présent est AUTHOR
 nombre moyen de d'articles publiés par auteur : match (n)-[q:AUTHOR]->(r) with r.name as g,count(n) as t return avg(t)
 nombre max de publicationsl: match (n)-[q:AUTHOR]->(r) with r.name as g,count(n) as t return max(t)  
 
-resultat -> 
+resultat -> le nombre moyen de publications est 1.750644466307189
 
 4. 
 l'auteur qui a publié le plus :
