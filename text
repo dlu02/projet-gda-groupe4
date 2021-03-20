@@ -4,7 +4,7 @@
     match p = (n)-[:VENUE]->(m) RETURN count(p) -> 51956 
     match p = (n)-[:AUTHOR]->(m) RETURN count(p) -> 140575
 
-Le Labele le plus présent est AUTHOR
+Le label le plus présent est AUTHOR
 
 3.
 nombre moyen de d'articles publiés par auteur : match (n)-[q:AUTHOR]->(r) with r.name as g,count(n) as t return avg(t)
@@ -84,9 +84,22 @@ CALL gds.alpha.triangleCount.write('whole-graph', {relationshipTypes:['CO_AUTHOR
 }) YIELD nodeCount, triangleCount, averageClusteringCoefficient
 
 Les résultats obtenus sont le nombre de triangles dans le graphe avec les deux types de relation : on en déduit le le calcul du coefficient de clustering global pour chacune des deux relations en fonction du nombre de triangles obtenu précédemment :
-Le coefficient de clustering calculé ici est global et représe'nte la probabilité que deux auteurs distincts ayant un co-auteur en commun soient eux-mêmes coauteurs
+Le coefficient de clustering calculé ici est global et représente la probabilité que deux auteurs distincts ayant un co-auteur en commun soient eux-mêmes coauteurs
 Le coefficient de clustering vaut respectivement 0.2181425208217988 et 0.19651381976902763, donc dans les deux cas LATE et EARLY, "les collaborateurs de mes collaborateurs ne sont pas sucetibles d'être mes collaborateurs"
 
-15. (marche pas)
-CALL gds.alpha.scc.write(graphName: "whole-graph", {relationshipProjection: 'CITED'})
-YIELD setCount, maxSetSize, minSetSize;
+15.
+CALL gds.alpha.scc.write('whole-graph', {relationshipTypes: ['CITED'], writeProperty: 'componentId'})
+YIELD setCount, maxSetSize, minSetSize
+
+16. 
+liste des composantes connexes et leur nombre de noeuds respectif
+match (n:Article) return n.componentId,count(n.componentId) ORDER BY count(n.componentId) DESC
+
+17.
+les 3 composantes avec le plus de noeuds
+match (n:Article) return n.componentId,count(n.componentId) ORDER BY count(n.componentId) DESC LIMIT 3
+
+visualisation :
+match (n:Article) WHERE n.componentId in [47355,7097,14935] return n
+
+18.
