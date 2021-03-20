@@ -8,9 +8,7 @@ Labele le plus présent est AUTHOR
 
 3.
 nombre moyen de d'articles publiés par auteur : match (n)-[q:AUTHOR]->(r) with r.name as g,count(n) as t return avg(t)
-nombre max de publicationsl: match (n)-[q:AUTHOR]->(r) with r.name as g,count(n) as t return max(t)  
-
-resultat -> 
+resultat -> 1.750644466307189
 
 4. 
 l'auteur qui a publié le plus :
@@ -58,13 +56,37 @@ réponse : Denys Poshyvanyk avec 16 publications
 11.
 create index on :Authors(name)
 
-12. (idée de départ) 
-MATCH (n)-[q:AUTHOR]->(r),(m)-[p:AUTHOR]->(s) WHERE n.title = m.title RETURN [n.title,[r.name,s.name]] limit 60
+12.
 
-créer la relation entre deux auteurs qui ont collaboré sur au moins un article (requête très lente et ca doit pas etre ca...)
-MATCH (n)-[q:AUTHOR]->(r),(m)-[p:AUTHOR]->(s) WHERE n.title = m.title CREATE UNIQUE (r)-[t:CO_AUTHOR]->(s) RETURN type(t)
+couples d'auteurs et leur article en commun
+MATCH (d)<-[e:AUTHOR]-(a)-[b:AUTHOR]->(c) RETURN d.name,c.name,a.title
 
+--> créer une relation entre deux auteurs qui ont publié au moins un article en commun
+MATCH (d)<-[e:AUTHOR]-(a)-[b:AUTHOR]->(c) CREATE UNIQUE (d)-[t:CO_AUTHOR]->(c) RETURN type(t)
 
-13. repose sur 12.
+--> ajouter les propriétés year et collaborations aux relations CO_AUTHOR
+match (a)-[t:CO_AUTHOR]->(b) 
+SET t.year = apoc.coll.min([(a)<-[r:AUTHOR]-(s)-[v:AUTHOR]->(b) | s.year]) 
+SET t.collaborations = size([(a)<-[r:AUTHOR]-(s)-[v:AUTHOR]->(b) | s.year]) 
+RETURN a.name,b.name,t.year,t.collaborations
+
+13.
+match (a)-[t:CO_AUTHOR]->(b) WHERE t.year<2006 CREATE (a)-[s:CO_AUTHOR_EARLY]->(b) RETURN a.name,b.name,type(s)
+match (a)-[t:CO_AUTHOR]->(b) WHERE t.year>=2006 CREATE (a)-[s:CO_AUTHOR_LATE]->(b) RETURN a.name,b.name,type(s)
 
 14. 
+CALL gds.alpha.triangleCount.write('whole-graph', {relationshipTypes:['CO_AUTHOR_EARLY'],
+  writeProperty: 'triangles', clusteringCoefficientProperty:'clustering'
+}) YIELD nodeCount, triangleCount, averageClusteringCoefficient
+
+CALL gds.alpha.triangleCount.write('whole-graph', {relationshipTypes:['CO_AUTHOR_LATE'],
+  writeProperty: 'triangles', clusteringCoefficientProperty:'clustering'
+}) YIELD nodeCount, triangleCount, averageClusteringCoefficient
+
+Les résultats obtenus sont le nombre de triangles dans le graphe avec les deux types de relation : on en déduit le le calcul du coefficient de clustering global pour chacune des deux relations en fonction du nombre de triangles obtenu précédemment :
+Le coefficient de clustering calculé ici est global et représe'nte la probabilité que deux auteurs distincts ayant un co-auteur en commun soient eux-mêmes coauteurs
+Le coefficient de clustering vaut respectivement 0.2181425208217988 et 0.19651381976902763, donc dans les deux cas LATE et EARLY, "les collaborateurs de mes collaborateurs ne sont pas sucetibles d'être mes collaborateurs"
+
+15. (marche pas)
+CALL gds.alpha.scc.write(graphName: "whole-graph", {relationshipProjection: 'CITED'})
+YIELD setCount, maxSetSize, minSetSize;
