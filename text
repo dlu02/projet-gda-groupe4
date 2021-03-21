@@ -1,10 +1,10 @@
 1. cf image
-2. "Cited" preuve ->
-    match p = (n)-[:CITED]->(m) RETURN count(p) -> 28706
-    match p = (n)-[:VENUE]->(m) RETURN count(p) -> 51956 
-    match p = (n)-[:AUTHOR]->(m) RETURN count(p) -> 140575
+2. Label la plus présente ->
+    match p = (n:Author) RETURN count(p) -> 80299
+    match p = (n:Article) RETURN count(p) -> 51956 
+    match p = (n:Venue) RETURN count(p) -> 4
 
-Le label le plus présent est AUTHOR
+Le label le plus présent est Author
 
 3.
 nombre moyen de d'articles publiés par auteur : match (n)-[q:AUTHOR]->(r) with r.name as g,count(n) as t return avg(t)
@@ -45,9 +45,7 @@ CALL gds.graph.create('graph2','Article',{ CITED: { orientation: 'UNDIRECTED'}})
 CALL gds.pageRank.write('graph2', {writeProperty: 'pageRank'})
 
 9. 
-CALL gds.pageRank.stream('graph2') YIELD nodeId, score
-RETURN gds.util.asNode(nodeId).name AS name, score
-ORDER BY score DESC LIMIT 10
+MATCH (n:Article) RETURN n.title,n.pageRank ORDER BY n.pageRank DESC LIMIT 10
 
 10. 
 CALL db.index.fulltext.queryNodes("articles", "open source") YIELD node 
@@ -108,7 +106,7 @@ visualisation :
 match (n:Article) WHERE n.componentId in [47355,7097,14935] return n
 
 18.
-MATCH (n:Article)-[:AUTHOR]->(a:Author) return n.componentId,sum(size([(a)<-[:AUTHOR]-(s) | s.title]))*1.0/count(n.componentId)
+MATCH (n:Article)-[:AUTHOR]->(a:Author) return n.componentId,sum(size([(a)<-[:AUTHOR]-(s) | s.title]))*1.0/count(n.componentId) as densite
 
 19. 
 MATCH (n:Article)-[:AUTHOR]->(a:Author) return n.componentId,sum(size([(a)<-[:AUTHOR]-(s) | s.title]))*1.0/count(n.componentId) as densite ORDER BY densite DESC LIMIT 3
